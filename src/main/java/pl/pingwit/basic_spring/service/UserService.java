@@ -25,6 +25,6 @@ public class UserService {
     public UserDto findUserById(Integer id) {
         Optional<User> userById = userRepository.findUserById(id);
         return userById.map(user -> new UserDto(user.id(), user.name() + " " + user.surname(), user.email()))
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found, sorry."));
     }
 }

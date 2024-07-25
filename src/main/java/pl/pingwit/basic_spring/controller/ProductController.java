@@ -1,9 +1,9 @@
 package pl.pingwit.basic_spring.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pl.pingwit.basic_spring.controller.product.CreateProductInputDto;
+import pl.pingwit.basic_spring.controller.product.ProductDto;
+import pl.pingwit.basic_spring.controller.product.UpdateProductInputDto;
 import pl.pingwit.basic_spring.service.ProductService;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/product")
 public class ProductController {
-    public final ProductService productService;
+    private final ProductService productService;
 
     public ProductController(ProductService productService) {
         this.productService = productService;
@@ -25,5 +25,20 @@ public class ProductController {
     @GetMapping("/{id}")
     public ProductDto findProductById(@PathVariable(name = "id") Integer id) {
         return productService.findProductById(id);
+    }
+
+    @PostMapping
+    public Integer createProduct(@RequestBody CreateProductInputDto input) {
+        return productService.createProduct(input);
+    }
+
+    @PutMapping("/{id}")
+    public void updateProduct(@PathVariable(name = "id") Integer id, @RequestBody UpdateProductInputDto inputDto) {
+        productService.updateProduct(id, inputDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable(name = "id") Integer id) {
+        productService.deleteProductById(id);
     }
 }

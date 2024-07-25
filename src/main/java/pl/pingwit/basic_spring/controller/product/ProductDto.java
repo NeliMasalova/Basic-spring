@@ -1,4 +1,4 @@
-package pl.pingwit.basic_spring.controller;
+package pl.pingwit.basic_spring.controller.product;
 
 import java.math.BigDecimal;
 import java.util.Objects;

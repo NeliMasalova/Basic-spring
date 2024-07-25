@@ -15,6 +15,7 @@ public class DataSourceConfig {
     private String username;
     @Value("${spring.datasource.password}")
     private String password;
+
     @Bean
     public DataSource dataSource (){
         HikariDataSource ds = new HikariDataSource();
@@ -23,6 +24,4 @@ public class DataSourceConfig {
         ds.setPassword(password);
         return ds;
     }
-
-
 }

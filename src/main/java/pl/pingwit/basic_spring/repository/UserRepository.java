@@ -1,7 +1,8 @@
 package pl.pingwit.basic_spring.repository;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Repository;
-import pl.pingwit.basic_spring.controller.User;
+import pl.pingwit.basic_spring.controller.user.User;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,36 +22,97 @@ public class UserRepository {
     }
 
     public Optional<User> findUserById(Integer id) {
-        try {
-            Connection connection = dataSource.getConnection();
-
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT id, name, surname, email, phone FROM users WHERE id = ?");
-
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT id, name, surname, email, phone FROM users WHERE id = ?")) {
             preparedStatement.setInt(1, id);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                return Optional.of(toUser(resultSet));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(toUser(resultSet));
+                }
             }
-            return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
+    public List<User> findAllUsers() {
+        List<User> users = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM users");
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                users.add(toUser(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
+    }
+
+    public List<String> findAllEmails() {
+        List<String> usersEmails = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT email FROM users");
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                usersEmails.add(resultSet.getString("Email"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return usersEmails;
+    }
+
+    public Integer createUser(User user) {
+        Integer id = RandomUtils.nextInt();
+        String request = """ 
+                              INSERT INTO users (id, name, surname, email, phone)
+                              VALUES (?, ?, ?, ?, ?);
+                """;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(request)) {
+            preparedStatement.setInt(1, user.id());
+            preparedStatement.setString(2, user.name());
+            preparedStatement.setString(3, user.surname());
+            preparedStatement.setString(4, user.email());
+            preparedStatement.setString(5, user.phone());
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return id;
+    }
+
+    public void deleteUserById(Integer id) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "DELETE FROM users WHERE id = ?")) {
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<User> findAllUsers() {
-        try {
-            Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM products");
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<User> users = new ArrayList<>();
-            while (resultSet.next()) {
-                users.add(toUser(resultSet));
-            }
-            return users;
+    public void updateUser(User userToUpdate) {
+        String updateRequest = """
+                UPDATE users
+                SET surname = ?, email = ?, phone = ?
+                WHERE id = ?
+                """;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(updateRequest)) {
+            preparedStatement.setString(1, userToUpdate.surname());
+            preparedStatement.setString(2, userToUpdate.email());
+            preparedStatement.setString(3, userToUpdate.phone());
+            preparedStatement.setInt(4, userToUpdate.id());
+
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

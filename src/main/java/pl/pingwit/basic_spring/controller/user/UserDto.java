@@ -1,16 +1,16 @@
-package pl.pingwit.basic_spring.controller;
+package pl.pingwit.basic_spring.controller.user;
 
 import java.util.Objects;
 
 public class UserDto {
-    private int id;
+    private Integer id;
     private String fullName;
     private String email;
 
     public UserDto() {
     }
 
-    public UserDto(int id, String fullName, String email) {
+    public UserDto(Integer id, String fullName, String email) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -20,7 +20,7 @@ public class UserDto {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
